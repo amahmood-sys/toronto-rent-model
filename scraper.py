@@ -11,9 +11,11 @@ Usage:
 
 import argparse
 import csv
+import json
 import logging
 import random
 import re
+import subprocess
 import time
 from dataclasses import dataclass, fields
 from pathlib import Path
@@ -232,6 +234,7 @@ class KijijiScraper:
         return listings
 
     def scrape(self, pages: int = 5) -> list[Listing]:
+        """Scrape via requests/BS4; fall back to Puppeteer if JS-blocked."""
         all_listings: list[Listing] = []
         for page in range(1, pages + 1):
             batch = self._scrape_page(page)
@@ -240,8 +243,85 @@ class KijijiScraper:
                 delay = random.uniform(*self.REQUEST_DELAY)
                 log.info("  Sleeping %.1fs …", delay)
                 time.sleep(delay)
+
+        if not all_listings:
+            log.info("requests/BS4 returned 0 listings — trying Puppeteer …")
+            all_listings = self._scrape_puppeteer(pages)
+
         log.info("Scraped %d valid listings total.", len(all_listings))
         return all_listings
+
+    def _scrape_puppeteer(self, pages: int) -> list[Listing]:
+        """Run scrape.js (Puppeteer + stealth) and parse its JSON output."""
+        script = Path(__file__).parent / "scrape.js"
+        if not script.exists():
+            log.error("scrape.js not found — cannot use Puppeteer fallback.")
+            return []
+
+        log.info("Launching headless browser via scrape.js …")
+        try:
+            result = subprocess.run(
+                ["node", str(script), "--pages", str(pages)],
+                capture_output=True,
+                text=True,
+                timeout=pages * 45 + 30,
+            )
+        except FileNotFoundError:
+            log.error("node not found — install Node.js to use Puppeteer fallback.")
+            return []
+        except subprocess.TimeoutExpired:
+            log.error("Puppeteer scrape timed out.")
+            return []
+
+        if result.returncode != 0:
+            log.error("scrape.js exited with code %d", result.returncode)
+            log.debug("stderr: %s", result.stderr)
+            return []
+
+        # stderr is progress output; stdout is the JSON array
+        for line in result.stderr.splitlines():
+            log.info("[puppeteer] %s", line)
+
+        try:
+            raw = json.loads(result.stdout)
+        except json.JSONDecodeError as exc:
+            log.error("Failed to parse scrape.js output: %s", exc)
+            return []
+
+        listings = []
+        for item in raw:
+            try:
+                bed_text = item.get("bedrooms") or item.get("title", "")
+                bedrooms = _parse_bedrooms(bed_text) or 1.0
+                price = float(item["price"])
+                listings.append(
+                    Listing(
+                        title=item.get("title", ""),
+                        price=price,
+                        bedrooms=bedrooms,
+                        bathrooms=1.0,
+                        size_sqft=float(item["size_sqft"]) if item.get("size_sqft") else None,
+                        neighbourhood=item.get("location", "Toronto"),
+                        property_type=_infer_property_type(item.get("title", "")),
+                        has_parking=_flag_in_text(item.get("title", ""), ["parking", "garage"]),
+                        has_laundry=_flag_in_text(item.get("title", ""), ["laundry", "washer"]),
+                        furnished=_flag_in_text(item.get("title", ""), ["furnished"]),
+                        pets_allowed=_flag_in_text(item.get("title", ""), ["pet", "dog", "cat"]),
+                        url=item.get("url", ""),
+                    )
+                )
+            except Exception as exc:
+                log.debug("Skipping puppeteer item: %s", exc)
+
+        return listings
+
+
+def _infer_property_type(title: str) -> str:
+    title_lower = title.lower()
+    for pt in PROPERTY_TYPES:
+        if pt.lower() in title_lower:
+            return pt
+    return "Apartment"
 
 
 def save_listings(listings: list[Listing], path: str | Path) -> None:
