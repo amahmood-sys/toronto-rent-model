@@ -18,3 +18,5 @@ plots/
 .DS_Store
 node_modules/
 package-lock.json
+web/node_modules/
+web/.next/
