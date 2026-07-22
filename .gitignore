@@ -8,15 +8,13 @@ build/
 .venv/
 venv/
 
+# ML pipeline (local only — not deployed to Vercel)
+ml/
+
 data/*.csv
 data/*.parquet
 models/*.joblib
 models/*.pkl
-ml/data/*.csv
-ml/data/*.parquet
-ml/models/*.joblib
-ml/models/*.pkl
-ml/plots/
 plots/
 *.log
 
