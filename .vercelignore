@@ -1,10 +1,5 @@
 # ML pipeline — not part of the Vercel deployment
-main.py
-model.py
-scraper.py
-scrape.js
-analysis.ipynb
-requirements.txt
+ml/
 data/
 plots/
 models/
