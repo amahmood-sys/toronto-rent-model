@@ -1,3 +1,7 @@
+streamlit_app.py
+requirements.txt
+render.yaml
+.streamlit/
 data/
 plots/
 models/
