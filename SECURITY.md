@@ -1,6 +1,6 @@
 # Security Audit & Hardening
 
-_Last reviewed: 2026-08-07_
+_Last reviewed: 2026-08-22_
 
 This document records the security review of the Toronto Rental Predictor and
 the hardening applied to it.

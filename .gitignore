@@ -11,7 +11,9 @@ venv/
 # ML pipeline (local only — not deployed to Vercel)
 ml/
 
-data/*.csv
+# data/listings_real.csv IS committed — it's the source of truth behind the
+# model's reported metrics and must stay reproducible. Only ignore other
+# generated/derived data files.
 data/*.parquet
 models/*.joblib
 models/*.pkl
