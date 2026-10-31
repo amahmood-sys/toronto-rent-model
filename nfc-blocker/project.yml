@@ -1,0 +1,32 @@
+# Generate the Xcode project with:  brew install xcodegen && xcodegen
+name: Tap
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  Tap:
+    type: application
+    platform: iOS
+    sources: [Tap]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.tap   # change to your own
+        DEVELOPMENT_TEAM: ""                          # set your Apple team ID
+        TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+    info:
+      path: Tap/Info.plist
+      properties:
+        CFBundleDisplayName: Tap
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        NFCReaderUsageDescription: Tap your tag to block or unblock apps.
+        com.apple.developer.nfc.readersession.iso7816.select-identifiers: [D2760000850101]
+    entitlements:
+      path: Tap/Tap.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.developer.nfc.readersession.formats: [TAG]
