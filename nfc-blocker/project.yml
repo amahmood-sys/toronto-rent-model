@@ -1,7 +1,7 @@
 # Generate the Xcode project with:  brew install xcodegen && xcodegen
 name: Tap
 options:
-  bundleIdPrefix: com.example
+  bundleIdPrefix: com.aayanmahmood
   deploymentTarget:
     iOS: "17.0"
 targets:
@@ -11,8 +11,8 @@ targets:
     sources: [Tap]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.tap   # change to your own
-        DEVELOPMENT_TEAM: ""                          # set your Apple team ID
+        PRODUCT_BUNDLE_IDENTIFIER: com.aayanmahmood.tap
+        DEVELOPMENT_TEAM: LXU9K7QU2F
         TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
