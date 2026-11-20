@@ -4,6 +4,8 @@ What should a Toronto rental cost, and which features and neighbourhoods drive t
 
 This project scrapes Kijiji listings, trains a rent-prediction model and serves it in a small app: enter a neighbourhood, property type, size and amenities, and get a predicted monthly rent plus what the same unit would cost in other neighbourhoods.
 
+**Live demo:** https://fantastic-octo-memory-nu.vercel.app
+
 ## Findings
 
 - On 420 Toronto listings ($650–$15,000/month), XGBoost predicts rent with a cross-validated **MAE of $460/month vs. $556 for a linear baseline (17% lower error)** and an **R² of 0.63**.
